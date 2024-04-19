@@ -1,0 +1,20 @@
+train_file: '../Data/train_with_edgeattr_from_(0, 100)_to_(0, 100)'
+test_file: '../Data/test_with_edgeattr_from_(0, 32)_to_(0, 32)'
+N_train: 100
+N_test: 32
+
+model:
+  type: 'GNN' # either `GNN`, `FCN`, or `both`
+  gcn_channels: 64
+  fcn_hidden: 128
+  fcn_out: 64
+training:
+  num_epochs: 5
+  optimizer: 'Adam'
+  loss: 'MSE' # either `MSE` or `L1`
+  learn_rate: 0.001
+  batch_size: 50
+
+save_files:
+  GNN: '../models/gnn.pth'
+  FCN: '../models/fcn.pth'
