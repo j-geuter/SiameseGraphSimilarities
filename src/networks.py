@@ -64,7 +64,6 @@ class SiameseNetwork(nn.Module):
         out_1 = self.twin(batch_1)
         out_2 = self.twin(batch_2)
         out = out_1 * out_2
-        out = out.sum(dim=1)
         out = self.fc(out)
         out = F.sigmoid(out)
         return out
