@@ -4,12 +4,12 @@ N_train: 100
 N_test: 32
 
 model:
-  type: 'GNN' # either `GNN`, `FCN`, or `both`
+  type: 'both' # either `GNN`, `FCN`, or `both`
   gcn_channels: 64
   fcn_hidden: 128
   fcn_out: 64
 training:
-  num_epochs: 5
+  num_epochs: 500
   optimizer: 'Adam'
   loss: 'MSE' # either `MSE` or `L1`
   learn_rate: 0.001

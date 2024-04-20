@@ -4,3 +4,4 @@ Data/*
 src/test.py
 src/__pycache__/*
 .idea/*
+models/*
