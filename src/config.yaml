@@ -1,20 +1,31 @@
-train_file: '../Data/train_with_edgeattr_from_(0, 100)_to_(0, 100)'
-test_file: '../Data/test_with_edgeattr_from_(0, 32)_to_(0, 32)'
+train_file: '../Data/train_wo_edgeattr_from_(0, 100)_to_(0, 100)'
+test_file: '../Data/test_wo_edgeattr_from_(0, 32)_to_(0, 32)'
 N_train: 100
 N_test: 32
 
 model:
   type: 'both' # either `GNN`, `FCN`, or `both`
-  gcn_channels: 64
+  gcn_channels: (64, 32, 16)
   fcn_hidden: 128
-  fcn_out: 64
+  fcn_out: 16
+  siamese_NTN: 64
+  siamese_hidden_1: 32
+  siamese_hidden_2: 16
 training:
   num_epochs: 500
   optimizer: 'Adam'
-  loss: 'MSE' # either `MSE` or `L1`
+  loss: 'L1' # either `MSE` or `L1`
   learn_rate: 0.001
   batch_size: 50
 
 save_files:
   GNN: '../models/gnn.pth'
   FCN: '../models/fcn.pth'
+
+test_while_train: True
+N_tests: 30
+test_at_end: True
+test_epochs: 10
+plot: False
+smooth_size: 5
+plot_nb: 50

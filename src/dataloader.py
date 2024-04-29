@@ -13,8 +13,8 @@ import networkx as nx
 random.seed(42)
 
 
-def load_data(N_train=300, N_test=100):
-    dataset = load_dataset("graphs-datasets/AIDS")["full"]
+def load_data(N_train=200, N_test=100, name='AIDS'):
+    dataset = load_dataset(f"graphs-datasets/{name}")["full"]
     dataset = [graph for graph in dataset if graph["num_nodes"] <= 10]
     random.shuffle(dataset)
 
@@ -66,6 +66,7 @@ def ged_map(i, j, arr):
 
 
 @click.command()
+@click.option("--dataset", default="AIDS", type=str)
 @click.option("--split", default="train", type=str)
 @click.option("--idx-from-start", type=int)
 @click.option("--idx-from-end", type=int)
@@ -73,6 +74,7 @@ def ged_map(i, j, arr):
 @click.option("--idx-to-end", type=int)
 @click.option("--num-workers", type=int)
 def main(
+    dataset: str,
     split: str,
     idx_from_start: int = None,
     idx_from_end: int = None,
@@ -80,8 +82,8 @@ def main(
     idx_to_end: int = None,
     num_workers: int = None,
 ):
-    logging.info("Load data...")
-    train_dataset, test_dataset = load_data()
+    logging.info(f"Loading dataset {dataset}...")
+    train_dataset, test_dataset = load_data(name=dataset)
     logging.info("Converting to networkx graphs...")
     if split == "train":
         data = [convert_to_networkx_graph(graph) for graph in train_dataset]
@@ -115,7 +117,7 @@ def main(
     results = torch.tensor(results).reshape(
         (idx_from_end - idx_from_start, idx_to_end - idx_to_start)
     )
-    torch.save(results, f"../Data/{split}_from_{idx_from}_to_{idx_to}")
+    torch.save(results, f"../Data/{dataset}_{split}_from_{idx_from}_to_{idx_to}")
 
 
 if __name__ == "__main__":

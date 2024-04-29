@@ -1,0 +1,161 @@
+% Harvard AM220 Poster Template
+% v1.1.0 released Apr 3, 2023
+% Borrowed from https://github.com/k4rtik/uchicago-poster
+% a fork of https://github.com/anishathalye/gemini
+
+\documentclass[final]{beamer}
+
+% ====================
+% Packages
+% ====================
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[size=custom,width=120,height=72,scale=1.0]{beamerposter}
+\usetheme{gemini}
+\usecolortheme{uchicago}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{doi}
+\usepackage[numbers]{natbib}
+\usepackage[patch=none]{microtype}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{anyfontsize}
+\usepackage{geometry}
+\geometry{paperwidth=36in,paperheight=24in,margin=2cm}
+
+\pdfstringdefDisableCommands{%
+\def\translate#1{#1}%
+}
+
+% ====================
+% Lengths
+% ====================
+
+% If you have N columns, choose \sepwidth and \colwidth such that
+% (N+1)*\sepwidth + N*\colwidth = \paperwidth
+\newlength{\sepwidth}
+\newlength{\colwidth}
+\setlength{\sepwidth}{0.025\paperwidth}
+\setlength{\colwidth}{0.3\paperwidth}
+
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
+
+% ====================
+% Title
+% ====================
+
+\title{[Insert Title]}
+
+\author{[Insert Author(s)]
+}
+
+\institute[shortinst]{APMTH 220 Poster Session, Harvard University, Cambridge, Massachusetts 02138 
+}
+
+% ====================
+% Logo (optional)
+% ====================
+
+% use this to include logos on the left and/or right side of the header:
+% \logoright{\includegraphics[height=7cm]{logos/H_SEAS_logo_RGB.png}}
+% \logoleft{\includegraphics[height=7cm]{logos/Harvard_University_logo.png}}
+
+% ====================
+% Body
+% ====================
+
+\begin{document}
+\addtobeamertemplate{headline}{}
+{
+    \begin{tikzpicture}[remember picture,overlay]
+      \node [anchor=north west, inner sep=3cm] at ([xshift=0.0cm,yshift=1.0cm]current page.north west)
+      {\includegraphics[height=5.0cm]{logos/Harvard_University_logo.png}}; % also try shield-white.eps
+      \node [anchor=north east, inner sep=3cm] at ([xshift=0.0cm,yshift=1.5cm]current page.north east)
+      {\includegraphics[height=7.0cm]{logos/H_SEAS_logo_RGB.png}};
+    \end{tikzpicture}
+}
+
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Abstract}
+
+    \medskip
+    Insert abstract here
+    \vspace{400px}
+
+  \end{block}
+
+  \begin{block}{Introduction}
+
+    \medskip
+    Insert introduction here
+    \vspace{400px}
+
+  \end{block}
+
+  \begin{block}{Background and Notation}
+
+    \medskip
+    Insert background and notation here
+    \vspace{300px}
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Approach}
+
+    \medskip
+    Insert approach here
+    \vspace{1500px}
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Results}
+
+    \medskip
+    Insert results here
+    \vspace{400px}
+
+  \end{block}
+
+  \begin{block}{Discussion}
+
+    \medskip
+    Insert discussion and conclusions here
+    \vspace{400px}
+
+  \end{block}
+
+  \begin{block}{Future Direction}
+
+    \medskip
+    Insert future direction here
+    \vspace{300px}
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+\end{columns}
+\end{frame}
+
+\end{document}
