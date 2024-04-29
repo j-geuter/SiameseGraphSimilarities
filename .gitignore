@@ -5,3 +5,5 @@ src/test.py
 src/__pycache__/*
 .idea/*
 models/*
+Poster/*
+*.png
