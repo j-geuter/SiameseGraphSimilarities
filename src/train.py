@@ -10,6 +10,7 @@ from networks import *
 with open("config.yaml", "r") as file:
     hyperparams = yaml.safe_load(file)
 
+dataset = hyperparams["dataset"]
 train_file = hyperparams["train_file"]
 test_file = hyperparams["test_file"]
 N_train = hyperparams["N_train"]
@@ -26,7 +27,7 @@ N_tests = hyperparams['N_tests']
 smooth_size = hyperparams['smooth_size']
 plot_nb = hyperparams['plot_nb']
 
-train_dataset, test_dataset = load_data()
+train_dataset, test_dataset = load_data(name=dataset)
 train_dataset = train_dataset[:N_train]
 test_dataset = test_dataset[:N_test]
 train_geds = torch.load(train_file)[:N_train, :N_train]

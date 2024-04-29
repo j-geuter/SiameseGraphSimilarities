@@ -1,3 +1,4 @@
+dataset: 'AIDS'
 train_file: '../Data/train_wo_edgeattr_from_(0, 100)_to_(0, 100)'
 test_file: '../Data/test_wo_edgeattr_from_(0, 32)_to_(0, 32)'
 N_train: 100

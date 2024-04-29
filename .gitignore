@@ -1,6 +1,6 @@
 ProjectProposal.pdf
 venv/*
-Data/*
+Data/unused/*
 src/test.py
 src/__pycache__/*
 .idea/*
