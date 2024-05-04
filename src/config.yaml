@@ -1,4 +1,4 @@
-dataset: 'alchemy' # `aids` or `alchemy`; can also be set to other datasets, in which case train and test files must be specified
+dataset: 'aids' # `aids` or `alchemy`; can also be set to other datasets, in which case train and test files must be specified
 # train and test files and indices only need to be specified for datasets other than `aids` or `alchemy`
 train_file_1:
 train_file_2:
