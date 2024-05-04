@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
-
-from torch_geometric.nn import GraphConv
-from torch_geometric.nn import global_mean_pool
 import torch.nn.functional as F
+from torch_geometric.nn import GraphConv, global_mean_pool
 
 torch.manual_seed(42)
 
@@ -28,7 +26,7 @@ class GNN(torch.nn.Module):
         x = self.conv3(x, edge_index)
 
         x = global_mean_pool(x, batch.batch)
-        #x = F.dropout(x, p=0.5, training=self.training)
+        # x = F.dropout(x, p=0.5, training=self.training)
         x = x.tanh()
 
         return x

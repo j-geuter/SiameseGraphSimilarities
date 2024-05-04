@@ -1,19 +1,18 @@
-from datasets import load_dataset
-
-import random
-import click
-from logger import logging
-from tqdm import tqdm
-import torch
 import multiprocessing
-from networkx import graph_edit_distance as ged
+import random
 
+import click
 import networkx as nx
+import torch
+from datasets import load_dataset
+from logger import logging
+from networkx import graph_edit_distance as ged
+from tqdm import tqdm
 
 random.seed(42)
 
 
-def load_data(N_train=200, N_test=100, name='AIDS'):
+def load_data(N_train=200, N_test=100, name="AIDS"):
     dataset = load_dataset(f"graphs-datasets/{name}")["full"]
     dataset = [graph for graph in dataset if graph["num_nodes"] <= 10]
     random.shuffle(dataset)
