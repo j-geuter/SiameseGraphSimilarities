@@ -1,32 +1,44 @@
-dataset: 'AIDS'
-train_file: '../Data/train_wo_edgeattr_from_(0, 100)_to_(0, 100)'
-test_file: '../Data/test_wo_edgeattr_from_(0, 32)_to_(0, 32)'
-N_train: 100
-N_test: 32
+dataset: 'alchemy' # `aids` or `alchemy`; can also be set to other datasets, in which case train and test files must be specified
+# train and test files and indices only need to be specified for datasets other than `aids` or `alchemy`
+train_file_1:
+train_file_2:
+test_file:
+indices_train_1:
+  from:
+  to:
+indices_train_2:
+  from:
+  to:
+indices_test_1:
+  from:
+  to:
+indices_test_2:
+  from:
+  to:
 
 model:
   type: 'both' # either `GNN`, `FCN`, or `both`
   gcn_channels: (64, 32, 16)
-  fcn_hidden: 128
+  fcn_hidden: 192
   fcn_out: 16
-  siamese_NTN: 64
-  siamese_hidden_1: 32
-  siamese_hidden_2: 16
+  siamese_NTN: 16
+  siamese_hidden_1: 8
+  siamese_hidden_2: 4
 training:
   num_epochs: 500
   optimizer: 'Adam'
-  loss: 'L1' # either `MSE` or `L1`
+  loss: 'MSE' # either `MSE` or `L1`
   learn_rate: 0.001
-  batch_size: 50
+  batch_size: 100
 
 save_files:
-  GNN: '../models/gnn.pth'
-  FCN: '../models/fcn.pth'
+  GNN: '../models/gnn_aids2.pth'
+  FCN: '../models/fcn_aids2.pth'
 
 test_while_train: True
 N_tests: 30
 test_at_end: True
 test_epochs: 10
-plot: False
+plot: True
 smooth_size: 5
 plot_nb: 50

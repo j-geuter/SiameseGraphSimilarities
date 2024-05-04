@@ -11,10 +11,33 @@ with open("config.yaml", "r") as file:
     hyperparams = yaml.safe_load(file)
 
 dataset = hyperparams["dataset"]
-train_file = hyperparams["train_file"]
+train_file_1 = hyperparams["train_file_1"]
+train_file_2 = hyperparams["train_file_2"] # can be None
 test_file = hyperparams["test_file"]
-N_train = hyperparams["N_train"]
-N_test = hyperparams["N_test"]
+indices_train_1 = (hyperparams['indices_train_1']['from'], hyperparams['indices_train_1']['to'])
+indices_train_2 = (hyperparams['indices_train_2']['from'], hyperparams['indices_train_2']['to'])
+indices_test_1 = (hyperparams['indices_test_1']['from'], hyperparams['indices_test_1']['to'])
+indices_test_2 = (hyperparams['indices_test_2']['from'], hyperparams['indices_test_2']['to'])
+if dataset == 'alchemy':
+    indices_train_1 = (0, 100)
+    indices_train_2 = (100, 200)
+    indices_test_1 = (0, 32)
+    indices_test_2 = (32, 64)
+    if train_file_1 is None:
+        train_file_1 = '../Data/alchemy_train_wo_edgeattr_from_(0, 100)_to_(100, 200)'
+    if test_file is None:
+        test_file = '../Data/alchemy_test_wo_edgeattr_from_(0, 32)_to_(32, 64)'
+if dataset == 'aids':
+    indices_train_1 = (0, 100)
+    indices_train_2 = (0, 200)
+    indices_test_1 = (0, 32)
+    indices_test_2 = (32, 64)
+    if train_file_1 is None:
+        train_file_1 = '../Data/aids_train_wo_edgeattr_from_(0, 100)_to_(100, 200)'
+    if train_file_2 is None:
+        train_file_2 = '../Data/aids_train_wo_edgeattr_from_(0, 100)_to_(0, 100)'
+    if test_file is None:
+        test_file = '../Data/aids_test_wo_edgeattr_from_(0, 32)_to_(32, 64)'
 model_dict = hyperparams["model"]
 training_dict = hyperparams["training"]
 num_epochs = training_dict["num_epochs"]
@@ -28,50 +51,65 @@ smooth_size = hyperparams['smooth_size']
 plot_nb = hyperparams['plot_nb']
 
 train_dataset, test_dataset = load_data(name=dataset)
-train_dataset = train_dataset[:N_train]
-test_dataset = test_dataset[:N_test]
-train_geds = torch.load(train_file)[:N_train, :N_train]
-num_nodes_train = torch.tensor([graph['num_nodes'] for graph in train_dataset])
-node_sums_train = num_nodes_train.unsqueeze(1) + num_nodes_train.unsqueeze(0)
+num_node_features = len(train_dataset[0]['node_feat'][0])
+train_dataset_1 = train_dataset[indices_train_1[0]:indices_train_1[1]]
+train_dataset_2 = train_dataset[indices_train_2[0]:indices_train_2[1]]
+test_dataset_1 = test_dataset[indices_test_1[0]:indices_test_1[1]]
+test_dataset_2 = test_dataset[indices_test_2[0]:indices_test_2[1]]
+train_geds = torch.load(train_file_1)
+if train_file_2 is not None:
+    train_geds_2 = torch.load(train_file_2)
+    train_geds = torch.cat((train_geds, train_geds_2), dim=1)
+num_nodes_train_1 = torch.tensor([graph['num_nodes'] for graph in train_dataset_1])
+num_nodes_train_2 = torch.tensor([graph['num_nodes'] for graph in train_dataset_2])
+node_sums_train = num_nodes_train_1.unsqueeze(1) + num_nodes_train_2.unsqueeze(0)
 train_geds /= node_sums_train
-train_geds = torch.exp(- train_geds)
-test_geds = torch.load(test_file)[:N_test, :N_test]
-num_nodes_test = torch.tensor([graph['num_nodes'] for graph in test_dataset])
-node_sums_test = num_nodes_test.unsqueeze(1) + num_nodes_test.unsqueeze(0)
+train_geds = torch.exp(- .5 * train_geds)
+test_geds = torch.load(test_file)
+num_nodes_test_1 = torch.tensor([graph['num_nodes'] for graph in test_dataset_1])
+num_nodes_test_2 = torch.tensor([graph['num_nodes'] for graph in test_dataset_2])
+node_sums_test = num_nodes_test_1.unsqueeze(1) + num_nodes_test_2.unsqueeze(0)
 test_geds /= node_sums_test
-test_geds = torch.exp(- test_geds)
+test_geds = torch.exp(- .5 * test_geds)
 
-train_loader = create_loader(
-    train_dataset, batch_size=training_dict["batch_size"], shuffle=True
+train_loader_1 = create_loader(
+    train_dataset_1, batch_size=training_dict["batch_size"], shuffle=True
 )
-test_loader = create_loader(
-    test_dataset, batch_size=training_dict["batch_size"], shuffle=True
+train_loader_2 = create_loader(
+    train_dataset_2, batch_size=training_dict["batch_size"], shuffle=True
+)
+test_loader_1 = create_loader(
+    test_dataset_1, batch_size=training_dict["batch_size"], shuffle=True
+)
+test_loader_2 = create_loader(
+    test_dataset_2, batch_size=training_dict["batch_size"], shuffle=True
 )
 
 models = []
 if model_dict["type"] == "GNN" or model_dict["type"] == "both":
-    gnn = GNN(*eval(model_dict["gcn_channels"]))
+    gnn = GNN(*eval(model_dict["gcn_channels"]), num_node_features=num_node_features)
     models.append(SiameseNetwork(gnn, model_dict['siamese_NTN'], model_dict['siamese_hidden_1'], model_dict['siamese_hidden_2']))
 if model_dict["type"] == "FCN" or model_dict["type"] == "both":
-    fcn = FCN(hidden_dim=model_dict["fcn_hidden"], output_dim=model_dict["fcn_out"])
+    fcn = FCN(input_dim=num_node_features, hidden_dim=model_dict["fcn_hidden"], output_dim=model_dict["fcn_out"])
     models.append(SiameseNetwork(fcn, model_dict['siamese_NTN'], model_dict['siamese_hidden_1'], model_dict['siamese_hidden_2']))
 
 
-def test(model, test_loader, loss_fn, test_geds, epochs=1):
+def test(model, test_loader_1, test_loader_2, loss_fn, test_geds, epochs=1):
     model.eval()
     total_loss = 0
     total_relative_error = 0
     for _ in range(epochs):
         with torch.no_grad():
-            for batch1, batch2 in zip(test_loader, test_loader):
-                geds = test_geds[batch1.idx, batch2.idx].unsqueeze(1)
-                predictions = model(batch1, batch2)
-                loss = loss_fn(predictions, geds)
-                total_loss += loss
-                relative_error = torch.mean(torch.abs(predictions - geds) / torch.max(torch.tensor(0.001), geds))
-                total_relative_error += relative_error
-    total_loss /= len(test_loader) * epochs
-    total_relative_error /= len(test_loader) * epochs
+            for batch1 in test_loader_1:
+                for batch2 in test_loader_2:
+                    geds = test_geds[batch1.idx, batch2.idx].unsqueeze(1)
+                    predictions = model(batch1, batch2)
+                    loss = loss_fn(predictions, geds)
+                    total_loss += loss
+                    relative_error = torch.mean(torch.abs(predictions - geds) / torch.max(torch.tensor(0.001), geds))
+                    total_relative_error += relative_error
+    total_loss /= len(test_loader_1) * len(test_loader_2) * epochs
+    total_relative_error /= len(test_loader_1) * len(test_loader_2) * epochs
     return total_loss, total_relative_error
 
 
@@ -94,29 +132,30 @@ for model in models:
         raise ValueError(f'Loss {training_dict["loss"]} not implemented.')
 
     if test_train:
-        test_losses = test(model, test_loader, loss_fn, test_geds, test_epochs)
+        test_losses = test(model, test_loader_1, test_loader_2, loss_fn, test_geds, test_epochs)
         model_trajectories[model.type]["test_losses"].append(test_losses[0].item())
         model_trajectories[model.type]["test_accuracies"].append(test_losses[1].item())
         print(
             f"Before training, test loss: {test_losses[0]:.4f}, relative test error: {test_losses[1]:.4f}"
         )
-    test_interval = num_epochs // N_tests
+    test_interval = max(1, num_epochs // N_tests)
     for epoch in range(num_epochs):
         model.train()
-        for i, (batch1, batch2) in enumerate(zip(train_loader, train_loader)):
-            # extract ground truth GEDs from full GED matrix
-            geds = train_geds[batch1.idx, batch2.idx].unsqueeze(1)
-            predictions = model(batch1, batch2)
-            loss = loss_fn(predictions, geds)
+        for i, batch1 in enumerate(train_loader_1):
+            for batch2 in train_loader_2:
+                # extract ground truth GEDs from full GED matrix
+                geds = train_geds[batch1.idx, batch2.idx].unsqueeze(1)
+                predictions = model(batch1, batch2)
+                loss = loss_fn(predictions, geds)
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
         if (epoch + 1) % test_interval == 0:
             print(f"Epoch {epoch + 1}/{num_epochs}: train loss {loss:.4f}")
             if test_train:
-                test_losses = test(model, test_loader, loss_fn, test_geds, test_epochs)
+                test_losses = test(model, test_loader_1, test_loader_2, loss_fn, test_geds, test_epochs)
                 model_trajectories[model.type]["test_losses"].append(test_losses[0].item())
                 model_trajectories[model.type]["test_accuracies"].append(test_losses[1].item())
                 print(
@@ -135,7 +174,7 @@ for model in models:
     )
 
     if test_end:
-        test_losses = test(model, test_loader, loss_fn, test_geds, test_epochs)
+        test_losses = test(model, test_loader_1, test_loader_2, loss_fn, test_geds, test_epochs)
         print(f'Test performance after training: loss {test_losses[0]}; rel. error {test_losses[1]}')
 
 

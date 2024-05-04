@@ -9,7 +9,7 @@ torch.manual_seed(42)
 
 
 class GNN(torch.nn.Module):
-    def __init__(self, hidden_1=64, hidden_2=32, hidden_3=16, num_node_features=38, num_edge_features=3):
+    def __init__(self, hidden_1=64, hidden_2=32, hidden_3=16, num_node_features=38):
         super(GNN, self).__init__()
         self.conv1 = GraphConv(num_node_features, hidden_1)
         self.conv2 = GraphConv(hidden_1, hidden_2)
@@ -35,7 +35,7 @@ class GNN(torch.nn.Module):
 
 
 class FCN(nn.Module):
-    def __init__(self, input_dim=38, hidden_dim=128, output_dim=64):
+    def __init__(self, input_dim=38, hidden_dim=192, output_dim=16):
         super(FCN, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, output_dim)
